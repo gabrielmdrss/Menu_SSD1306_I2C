@@ -1,0 +1,13 @@
+../Core/Src/auxiliary_material.h:49:6:MPU6050_Init	2
+../Core/Src/auxiliary_material.h:71:6:MPU6050_Read_Accel	1
+../Core/Src/auxiliary_material.h:93:6:BMP280_Init	1
+../Core/Src/auxiliary_material.h:135:6:BMP280_Read_Measures	2
+../Core/Src/main.c:78:5:main	8
+../Core/Src/main.c:209:6:SystemClock_Config	3
+../Core/Src/main.c:248:13:MX_I2C1_Init	2
+../Core/Src/main.c:280:13:MX_USART1_UART_Init	2
+../Core/Src/main.c:311:13:MX_GPIO_Init	1
+../Core/Src/main.c:333:5:__io_putchar	2
+../Core/Src/main.c:339:5:__io_getchar	1
+../Core/Src/main.c:343:6:USART1_IRQHandler	1
+../Core/Src/main.c:353:6:Error_Handler	1
