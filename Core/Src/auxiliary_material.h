@@ -1,6 +1,8 @@
 #ifndef AUXILIARY_MATERIAL_H
 #define AUXILIARY_MATERIAL_H
 
+#include "horse_anim.h"
+
 //Registers Address (MPU6500)
 #define MPU6050_ADDR 0xD0
 #define SMPLRT_DIV_REG 0x19
@@ -68,7 +70,7 @@ void MPU6050_Init(void) {
 	}
 }
 
-void MPU6050_Read_Accel(void) {
+void MPU6500_Read_Values(void) {
 	uint8_t Rec_Data[12];
 // Read 6 BYTES of data starting from ACCEL_XOUT_H (0x3B) register
 	HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x3B, 1, Rec_Data, 12, 1000);
@@ -76,8 +78,8 @@ void MPU6050_Read_Accel(void) {
 	Accel_Y_RAW = (int16_t) (Rec_Data[2] << 8 | Rec_Data[3]);
 	Accel_Z_RAW = (int16_t) (Rec_Data[4] << 8 | Rec_Data[5]);
 	Gyro_X_RAW = (int16_t) (Rec_Data[6] << 8 | Rec_Data[7]);
-	Gyro_X_RAW = (int16_t) (Rec_Data[8] << 8 | Rec_Data[9]);
-	Gyro_X_RAW = (int16_t) (Rec_Data[10] << 8 | Rec_Data[11]);
+	Gyro_Y_RAW = (int16_t) (Rec_Data[8] << 8 | Rec_Data[9]);
+	Gyro_Z_RAW = (int16_t) (Rec_Data[10] << 8 | Rec_Data[11]);
 	/*** convert the RAW values into acceleration in 'g'
 	 we have to divide according to the Full scale value set in FS_SEL
 	 I have configured FS_SEL = 0. So I am dividing by 16384.0
@@ -171,6 +173,48 @@ void BMP280_Read_Measures(float *t, float *p) {
 		P = P + (var1 + var2 + ((float) BMP280_dig_P7)) / 16;
 		*p = P / 100;	//retorna P em hPa (retorno em float)
 	}
+}
+
+void animation(void) {
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse1, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse2, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse3, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse4, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse5, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse6, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse7, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse8, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse9, 128, 64, 0);
+	ssd1306_UpdateScreen();
+
+	ssd1306_Fill(1);
+	ssd1306_DrawBitmap(0, 0, horse10, 128, 64, 0);
+	ssd1306_UpdateScreen();
 }
 
 #endif /*AUXILIARY_MATERIAL_H*/

@@ -121,18 +121,29 @@ int main(void) {
 			ssd1306_DrawBitmap(4, 24, bitmap_icon_parksensor, 16, 16, 1);
 			ssd1306_SetCursor(25, 5 + 20 + 2);
 			ssd1306_WriteString("Gyroscope", Font_7x10, 1);
+			ssd1306_DrawBitmap(4, 46, bitmap_icon_fireworks, 16, 16, 1);
+			ssd1306_SetCursor(25, 5 + 20 + 20 + 2 + 2);
+			ssd1306_WriteString("Animation", Font_7x10, 1);
 
-			if (!cursor) {
+			if (cursor == 0) {
+				ssd1306_DrawBitmap(0, 43, bitmap_item_sel_outline, 128, 21, 0);
 				ssd1306_DrawBitmap(0, 22, bitmap_item_sel_outline, 128, 21, 0);
 				ssd1306_DrawBitmap(0, 1, bitmap_item_sel_outline, 128, 21, 1);
-			} else {
+			} else if (cursor == 1) {
+				ssd1306_DrawBitmap(0, 43, bitmap_item_sel_outline, 128, 21, 0);
 				ssd1306_DrawBitmap(0, 22, bitmap_item_sel_outline, 128, 21, 1);
+				ssd1306_DrawBitmap(0, 1, bitmap_item_sel_outline, 128, 21, 0);
+			} else {
+				ssd1306_DrawBitmap(0, 43, bitmap_item_sel_outline, 128, 21, 1);
+				ssd1306_DrawBitmap(0, 22, bitmap_item_sel_outline, 128, 21, 0);
 				ssd1306_DrawBitmap(0, 1, bitmap_item_sel_outline, 128, 21, 0);
 			}
 
 			if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9)) {
-				cursor = !cursor;
-				HAL_Delay(50);
+				cursor++;
+				if (cursor == 3)
+					cursor = 0;
+				HAL_Delay(100);
 			}
 
 			if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_10)) {
@@ -145,26 +156,8 @@ int main(void) {
 
 			ssd1306_Fill(0);
 
-			if (cursor) {
-				MPU6050_Read_Accel();
-				char buffer_floats[7];
-				ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
-				ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Gyro x: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_floats, "%.1f", gx);
-				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
-				ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Gyro y: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_floats, "%.1f", gy);
-				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
-				ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Gyro z: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_floats, "%.1f", gz);
-				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no bufferr
-			}
-
-			else {
-				MPU6050_Read_Accel();
+			if (cursor == 0) {
+				MPU6500_Read_Values();
 				char buffer_float[7];
 				ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
 				ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
@@ -180,6 +173,26 @@ int main(void) {
 				sprintf(buffer_float, "%.1f", Az);
 				ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
 			}
+
+			else if (cursor == 1) {
+				MPU6500_Read_Values();
+				char buffer_floats[7];
+				ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
+				ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
+				ssd1306_WriteString("Gyro x: ", Font_6x8, 1); //Escreve o texto no buffer
+				sprintf(buffer_floats, "%.1f", gx);
+				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
+				ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
+				ssd1306_WriteString("Gyro y: ", Font_6x8, 1); //Escreve o texto no buffer
+				sprintf(buffer_floats, "%.1f", gy);
+				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
+				ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
+				ssd1306_WriteString("Gyro z: ", Font_6x8, 1); //Escreve o texto no buffer
+				sprintf(buffer_floats, "%.1f", gz);
+				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no bufferr
+
+			} else
+				animation();
 
 			if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_10)) {
 				current_screen = !current_screen;
@@ -255,7 +268,7 @@ static void MX_I2C1_Init(void) {
 
 	/* USER CODE END I2C1_Init 1 */
 	hi2c1.Instance = I2C1;
-	hi2c1.Init.ClockSpeed = 100000;
+	hi2c1.Init.ClockSpeed = 400000;
 	hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
 	hi2c1.Init.OwnAddress1 = 0;
 	hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
