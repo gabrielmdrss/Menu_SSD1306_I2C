@@ -223,67 +223,86 @@ void menu(void) {
 }
 
 void read_accel(void) {
-	uint8_t Rec_Data[6];
-	// Read 6 BYTES of data starting from ACCEL_XOUT_H (0x3B) register
-	HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x3B, 1, Rec_Data, 6, 1000);
-	Accel_X_RAW = (int16_t) (Rec_Data[0] << 8 | Rec_Data[1]);
-	Accel_Y_RAW = (int16_t) (Rec_Data[2] << 8 | Rec_Data[3]);
-	Accel_Z_RAW = (int16_t) (Rec_Data[4] << 8 | Rec_Data[5]);
-	/*** convert the RAW values into acceleration in 'g'
-	 we have to divide according to the Full scale value set in FS_SEL
-	 I have configured FS_SEL = 0. So I am dividing by 16384.0
-	 for more details check ACCEL_CONFIG Register ****/
-	Ax = (float) Accel_X_RAW / 16384.0;
-	Ay = (float) Accel_Y_RAW / 16384.0;
-	Az = (float) Accel_Z_RAW / 16384.0;
+	uint8_t check;
+	// check device ID WHO_AM_I
+	HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x75, 1, &check, 1, 1000);
+	if (check == 0x70) {
+		uint8_t Rec_Data[6];
+		// Read 6 BYTES of data starting from ACCEL_XOUT_H (0x3B) register
+		HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x3B, 1, Rec_Data, 6, 1000);
+		Accel_X_RAW = (int16_t) (Rec_Data[0] << 8 | Rec_Data[1]);
+		Accel_Y_RAW = (int16_t) (Rec_Data[2] << 8 | Rec_Data[3]);
+		Accel_Z_RAW = (int16_t) (Rec_Data[4] << 8 | Rec_Data[5]);
+		/*** convert the RAW values into acceleration in 'g'
+		 we have to divide according to the Full scale value set in FS_SEL
+		 I have configured FS_SEL = 0. So I am dividing by 16384.0
+		 for more details check ACCEL_CONFIG Register ****/
+		Ax = (float) Accel_X_RAW / 16384.0;
+		Ay = (float) Accel_Y_RAW / 16384.0;
+		Az = (float) Accel_Z_RAW / 16384.0;
 
-	char buffer_float[7];
-	ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
-	ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
-	ssd1306_WriteString("Accel x: ", Font_6x8, 1); //Escreve o texto no buffer
-	sprintf(buffer_float, "%.1f", Ax);
-	ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
-	ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
-	ssd1306_WriteString("Accel y: ", Font_6x8, 1); //Escreve o texto no buffer
-	sprintf(buffer_float, "%.1f", Ay);
-	ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
-	ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
-	ssd1306_WriteString("Accel z: ", Font_6x8, 1); //Escreve o texto no buffer
-	sprintf(buffer_float, "%.1f", Az);
-	ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
+		char buffer_float[7];
+		ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
+		ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("Accel x: ", Font_6x8, 1); //Escreve o texto no buffer
+		sprintf(buffer_float, "%.1f", Ax);
+		ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
+		ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("Accel y: ", Font_6x8, 1); //Escreve o texto no buffer
+		sprintf(buffer_float, "%.1f", Ay);
+		ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
+		ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("Accel z: ", Font_6x8, 1); //Escreve o texto no buffer
+		sprintf(buffer_float, "%.1f", Az);
+		ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
+
+	} else {
+		ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("INERCIAL OFF", Font_6x8, 1); //Escreve o texto no buffer
+	}
 }
 
-void read_gyro(void){
-	uint8_t Rec_Data[6];
-	// Read 6 BYTES of data starting from ACCEL_XOUT_H (0x3B) register
-	HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x3B, 1, Rec_Data, 12, 1000);
-	Accel_X_RAW = (int16_t) (Rec_Data[0] << 8 | Rec_Data[1]);
-	Accel_Y_RAW = (int16_t) (Rec_Data[2] << 8 | Rec_Data[3]);
-	Accel_Z_RAW = (int16_t) (Rec_Data[4] << 8 | Rec_Data[5]);
-	Gyro_X_RAW = (int16_t) (Rec_Data[6] << 8 | Rec_Data[7]);
-	Gyro_Y_RAW = (int16_t) (Rec_Data[8] << 8 | Rec_Data[9]);
-	Gyro_Z_RAW = (int16_t) (Rec_Data[10] << 8 | Rec_Data[11]);
-	/*** convert the RAW values into acceleration in 'g'
-	 we have to divide according to the Full scale value set in FS_SEL
-	 I have configured FS_SEL = 0. So I am dividing by 16384.0
-	 for more details check ACCEL_CONFIG Register ****/
-	gx = (float) Gyro_X_RAW / 131.0;
-	gy = (float) Gyro_Y_RAW / 131.0;
-	gz = (float) Gyro_Z_RAW / 131.0;
-	char buffer_floats[7];
-	ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
-	ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
-	ssd1306_WriteString("Gyro x: ", Font_6x8, 1); //Escreve o texto no buffer
-	sprintf(buffer_floats, "%.1f", gx);
-	ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
-	ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
-	ssd1306_WriteString("Gyro y: ", Font_6x8, 1); //Escreve o texto no buffer
-	sprintf(buffer_floats, "%.1f", gy);
-	ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
-	ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
-	ssd1306_WriteString("Gyro z: ", Font_6x8, 1); //Escreve o texto no buffer
-	sprintf(buffer_floats, "%.1f", gz);
-	ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no bufferr
+void read_gyro(void) {
+	uint8_t check;
+	// check device ID WHO_AM_I
+	HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x75, 1, &check, 1, 1000);
+	if (check == 0x70) {
+
+		uint8_t Rec_Data[12];
+		// Read 6 BYTES of data starting from ACCEL_XOUT_H (0x3B) register
+		HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x3B, 1, Rec_Data, 12, 1000);
+		Accel_X_RAW = (int16_t) (Rec_Data[0] << 8 | Rec_Data[1]);
+		Accel_Y_RAW = (int16_t) (Rec_Data[2] << 8 | Rec_Data[3]);
+		Accel_Z_RAW = (int16_t) (Rec_Data[4] << 8 | Rec_Data[5]);
+		Gyro_X_RAW = (int16_t) (Rec_Data[6] << 8 | Rec_Data[7]);
+		Gyro_Y_RAW = (int16_t) (Rec_Data[8] << 8 | Rec_Data[9]);
+		Gyro_Z_RAW = (int16_t) (Rec_Data[10] << 8 | Rec_Data[11]);
+		/*** convert the RAW values into acceleration in 'g'
+		 we have to divide according to the Full scale value set in FS_SEL
+		 I have configured FS_SEL = 0. So I am dividing by 16384.0
+		 for more details check ACCEL_CONFIG Register ****/
+		gx = (float) Gyro_X_RAW / 131.0;
+		gy = (float) Gyro_Y_RAW / 131.0;
+		gz = (float) Gyro_Z_RAW / 131.0;
+		char buffer_floats[7];
+		ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
+		ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("Gyro x: ", Font_6x8, 1); //Escreve o texto no buffer
+		sprintf(buffer_floats, "%.1f", gx);
+		ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
+		ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("Gyro y: ", Font_6x8, 1); //Escreve o texto no buffer
+		sprintf(buffer_floats, "%.1f", gy);
+		ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
+		ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("Gyro z: ", Font_6x8, 1); //Escreve o texto no buffer
+		sprintf(buffer_floats, "%.1f", gz);
+		ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no bufferr
+
+	} else {
+		ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
+		ssd1306_WriteString("INERCIAL OFF", Font_6x8, 1); //Escreve o texto no buffer
+	}
 }
 
 #endif /*DEFINES_FUNCTIONS_H*/

@@ -101,7 +101,6 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	ssd1306_Init();
 	MPU6050_Init();
-	BMP280_Init();
 
 	/* USER CODE END 2 */
 
