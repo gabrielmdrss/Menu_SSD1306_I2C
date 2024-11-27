@@ -23,11 +23,11 @@
 /* USER CODE BEGIN Includes */
 #include <ssd1306.h>
 #include <ssd1306_fonts.h>
-#include "horse_anim.h"
 #include "png.h"
 #include <stdio.h>
 #include <string.h>
-#include "auxiliary_material.h"
+#include "DEFINES_FUNCTIONS.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,103 +109,63 @@ int main(void) {
 	/* USER CODE BEGIN WHILE */
 	while (1) {
 
-		if (!current_screen) {
-
-			ssd1306_Fill(0);
-			ssd1306_DrawBitmap(4, 2, bitmap_icon_dashboard, 16, 16, 1);
-			ssd1306_SetCursor(25, 5);
-			ssd1306_WriteString("Accelerometer", Font_7x10, 1);
-			ssd1306_DrawBitmap(4, 24, bitmap_icon_parksensor, 16, 16, 1);
-			ssd1306_SetCursor(25, 5 + 20 + 2);
-			ssd1306_WriteString("Gyroscope", Font_7x10, 1);
-			ssd1306_DrawBitmap(4, 46, bitmap_icon_fireworks, 16, 16, 1);
-			ssd1306_SetCursor(25, 5 + 20 + 20 + 2 + 2);
-			ssd1306_WriteString("Animation", Font_7x10, 1);
-
-			if (cursor == 0) {
-				ssd1306_DrawBitmap(0, 43, bitmap_item_sel_outline, 128, 21, 0);
-				ssd1306_DrawBitmap(0, 22, bitmap_item_sel_outline, 128, 21, 0);
-				ssd1306_DrawBitmap(0, 1, bitmap_item_sel_outline, 128, 21, 1);
-			} else if (cursor == 1) {
-				ssd1306_DrawBitmap(0, 43, bitmap_item_sel_outline, 128, 21, 0);
-				ssd1306_DrawBitmap(0, 22, bitmap_item_sel_outline, 128, 21, 1);
-				ssd1306_DrawBitmap(0, 1, bitmap_item_sel_outline, 128, 21, 0);
-			} else {
-				ssd1306_DrawBitmap(0, 43, bitmap_item_sel_outline, 128, 21, 1);
-				ssd1306_DrawBitmap(0, 22, bitmap_item_sel_outline, 128, 21, 0);
-				ssd1306_DrawBitmap(0, 1, bitmap_item_sel_outline, 128, 21, 0);
-			}
-
-			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON)) {
-				cursor--;
-				if (cursor == -1)
-					cursor = 2;
-				HAL_Delay(100);
-
-			}
-
-			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON)) {
-				cursor++;
-				if (cursor == 3)
-					cursor = 0;
-				HAL_Delay(100);
-			}
+		if (current_screen == 0) {
 
 			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
 				current_screen = !current_screen;
 				HAL_Delay(200);
 			}
+
+			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON)) {
+				cursor--;
+				if (cursor == -1)
+					cursor = 3;
+				item_selected -= 1;
+				if (item_selected < 0)
+					item_selected = NUM_ITEMS - 1;
+				HAL_Delay(100);
+			}
+
+			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON)) {
+				cursor++;
+				if (cursor == 4)
+					cursor = 0;
+				item_selected += 1; // select next item
+				if (item_selected >= NUM_ITEMS)
+					item_selected = 0;
+				HAL_Delay(100);
+			}
+			menu();
 		}
 
 		if (current_screen) {
 
-			ssd1306_Fill(0);
-
-			if (cursor == 0) {
-				MPU6500_Read_Values();
-				char buffer_float[7];
-				ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
-				ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Accel x: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_float, "%.1f", Ax);
-				ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
-				ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Accel y: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_float, "%.1f", Ay);
-				ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
-				ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Accel z: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_float, "%.1f", Az);
-				ssd1306_WriteString(buffer_float, Font_6x8, 1); //Escreve o texto no buffer
-			}
-
-			else if (cursor == 1) {
-				MPU6500_Read_Values();
-				char buffer_floats[7];
-				ssd1306_Fill(0); //Seta todos os pixels do buffer para branco
-				ssd1306_SetCursor(5, 16); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Gyro x: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_floats, "%.1f", gx);
-				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
-				ssd1306_SetCursor(5, 30); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Gyro y: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_floats, "%.1f", gy);
-				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no buffer
-				ssd1306_SetCursor(5, 44); //Posiciona o "cursor" no pixel correspondente
-				ssd1306_WriteString("Gyro z: ", Font_6x8, 1); //Escreve o texto no buffer
-				sprintf(buffer_floats, "%.1f", gz);
-				ssd1306_WriteString(buffer_floats, Font_6x8, 1); //Escreve o texto no bufferr
-
-			} else
-				animation();
-
-			if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_10)) {
+			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
 				current_screen = !current_screen;
 				HAL_Delay(200);
 			}
+
+			ssd1306_Fill(0);
+
+			if (item_selected == 0) {
+				read_accel();
+			}
+
+			else if (item_selected == 1) {
+				read_gyro();
+
+			} else if (item_selected == 2)
+				animation();
 		}
 
-		ssd1306_DrawBitmap(128-8, 0, bitmap_scrollbar_background, 8, 64, 1);
+		item_sel_previous = item_selected - 1;
+		if (item_sel_previous < 0) {
+			item_sel_previous = NUM_ITEMS - 1;
+		} // previous item would be below first = make it the last
+		item_sel_next = item_selected + 1;
+		if (item_sel_next >= NUM_ITEMS) {
+			item_sel_next = 0;
+		} // next item would be after last = make it the first
 		ssd1306_UpdateScreen();
 
 //		BMP280_Read_Measures(&t, &p);

@@ -31,8 +31,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  C:/Users/Spacefab-04/STM32CubeIDE/workspace_1.16.1/Menu_ssd1306/Drivers/ssd1306/ssd1306_conf.h \
  C:/Users/Spacefab-04/STM32CubeIDE/workspace_1.16.1/Menu_ssd1306/Drivers/ssd1306/ssd1306_fonts.h \
  C:/Users/Spacefab-04/STM32CubeIDE/workspace_1.16.1/Menu_ssd1306/Drivers/ssd1306/ssd1306.h \
- ../Core/Src/horse_anim.h ../Core/Src/png.h \
- ../Core/Src/auxiliary_material.h
+ ../Core/Src/png.h ../Core/Src/DEFINES_FUNCTIONS.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -66,6 +65,5 @@ C:/Users/Spacefab-04/STM32CubeIDE/workspace_1.16.1/Menu_ssd1306/Drivers/ssd1306/
 C:/Users/Spacefab-04/STM32CubeIDE/workspace_1.16.1/Menu_ssd1306/Drivers/ssd1306/ssd1306_conf.h:
 C:/Users/Spacefab-04/STM32CubeIDE/workspace_1.16.1/Menu_ssd1306/Drivers/ssd1306/ssd1306_fonts.h:
 C:/Users/Spacefab-04/STM32CubeIDE/workspace_1.16.1/Menu_ssd1306/Drivers/ssd1306/ssd1306.h:
-../Core/Src/horse_anim.h:
 ../Core/Src/png.h:
-../Core/Src/auxiliary_material.h:
+../Core/Src/DEFINES_FUNCTIONS.h:
