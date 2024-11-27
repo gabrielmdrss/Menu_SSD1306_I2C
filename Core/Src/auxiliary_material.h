@@ -21,6 +21,10 @@
 #define CONFIG		0xF5
 #define DATA_REGS	0xF7
 
+#define UP_BUTTON GPIO_PIN_9
+#define DOWN_BUTTON GPIO_PIN_11
+#define ENTER_BUTTON GPIO_PIN_10
+
 //Variables for MPU6500 Configuration
 int16_t Accel_X_RAW = 0;
 int16_t Accel_Y_RAW = 0;

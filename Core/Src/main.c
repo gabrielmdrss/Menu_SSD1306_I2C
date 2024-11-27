@@ -51,9 +51,6 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-char message[] = "I2C-ISE-VIRTUSCC";
-int current_screen = 0;
-int cursor = 0;
 
 /* USER CODE END PV */
 
@@ -139,14 +136,22 @@ int main(void) {
 				ssd1306_DrawBitmap(0, 1, bitmap_item_sel_outline, 128, 21, 0);
 			}
 
-			if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9)) {
+			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON)) {
+				cursor--;
+				if (cursor == -1)
+					cursor = 2;
+				HAL_Delay(100);
+
+			}
+
+			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON)) {
 				cursor++;
 				if (cursor == 3)
 					cursor = 0;
 				HAL_Delay(100);
 			}
 
-			if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_10)) {
+			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
 				current_screen = !current_screen;
 				HAL_Delay(200);
 			}
@@ -200,6 +205,7 @@ int main(void) {
 			}
 		}
 
+		ssd1306_DrawBitmap(128-8, 0, bitmap_scrollbar_background, 8, 64, 1);
 		ssd1306_UpdateScreen();
 
 //		BMP280_Read_Measures(&t, &p);
@@ -331,8 +337,8 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
-	/*Configure GPIO pins : PE9 PE10 */
-	GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10;
+	/*Configure GPIO pins : PE9 PE10 PE11 */
+	GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
