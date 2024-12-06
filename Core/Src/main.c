@@ -101,6 +101,7 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	ssd1306_Init();
 	MPU6050_Init();
+	current_screen = 0;
 
 	/* USER CODE END 2 */
 
