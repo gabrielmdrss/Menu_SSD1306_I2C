@@ -15,24 +15,24 @@ This repository contains the implementation of a simple menu interface using an 
     - `PB6` - SCL (Clock).  
     - `PB9` - SDA (Data).  
   - Button Pins:  
-    - `PE9` - CHANGE button.  
-    - `PE10` - ENTER button.  
+    - `PE9` - UP button.  
+    - `PE10` - ENTER button.
+    - `PE11` - DOWN button.
 
 ## Hardware Requirements  
 
 - STM32 microcontroller.  
 - SSD1306 OLED display (I2C interface).  
 - MPU6500 accelerometer (I2C interface).  
-- Two push-buttons for navigation.  
+- Three push-buttons for navigation.  
 
 ## Software Setup  
 
-- IDE: STM32CubeIDE or equivalent.  
+- IDE: STM32CubeIDE.  
 - Libraries:  
   - SSD1306 display driver.  
-  - MPU6500 accelerometer driver.  
-  - HAL or LL drivers for I2C and GPIO.  
-
+  - HAL Library
+    
 ## Getting Started  
 
 1. **Hardware Wiring:**  
