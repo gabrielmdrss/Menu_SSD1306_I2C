@@ -102,11 +102,8 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	ssd1306_Init();
 	MPU6050_Init();
-<<<<<<< HEAD
 	BMP280_Init();
-=======
 	current_screen = 0;
->>>>>>> 5f9605693e4d2d786ea085ed0dba453a3eea74ca
 
 	/* USER CODE END 2 */
 
