@@ -89,23 +89,23 @@ void BMP280_Init(void) {
 
 	//Coletando os parâmetros de calibração
 	uint8_t param[24];
-	HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, CALIB_REGS, 1, param, 24, 1000);
+	HAL_I2C_Mem_Read(&hi2c1, BMP280_ADDR, CALIB_REGS, 1, param, 24, 1000);
 
 	//Extraindo os dados de calibração da temperatura
-	BMP280_dig_T1 = (param[0] << 8) | param[1];
-	BMP280_dig_T2 = (param[2] << 8) | param[3];
-	BMP280_dig_T3 = (param[4] << 8) | param[5];
+	BMP280_dig_T1 = (param[1] << 8) | param[0];
+	BMP280_dig_T2 = (param[3] << 8) | param[2];
+	BMP280_dig_T3 = (param[5] << 8) | param[4];
 
 	//Extraindo os dados de calibração da pressão
-	BMP280_dig_P1 = (param[6] << 8) | param[7];
-	BMP280_dig_P2 = (param[8] << 8) | param[9];
-	BMP280_dig_P3 = (param[10] << 8) | param[11];
-	BMP280_dig_P4 = (param[12] << 8) | param[13];
-	BMP280_dig_P5 = (param[14] << 8) | param[15];
-	BMP280_dig_P6 = (param[16] << 8) | param[17];
-	BMP280_dig_P7 = (param[18] << 8) | param[19];
-	BMP280_dig_P8 = (param[20] << 8) | param[21];
-	BMP280_dig_P9 = (param[22] << 8) | param[23];
+	BMP280_dig_P1 = (param[7] << 8) | param[6];
+	BMP280_dig_P2 = (param[9] << 8) | param[8];
+	BMP280_dig_P3 = (param[11] << 8) | param[10];
+	BMP280_dig_P4 = (param[13] << 8) | param[12];
+	BMP280_dig_P5 = (param[15] << 8) | param[14];
+	BMP280_dig_P6 = (param[17] << 8) | param[16];
+	BMP280_dig_P7 = (param[19] << 8) | param[18];
+	BMP280_dig_P8 = (param[21] << 8) | param[20];
+	BMP280_dig_P9 = (param[23] << 8) | param[22];
 
 	Data = 0x1C;
 	HAL_I2C_Mem_Write(&hi2c1, BMP280_ADDR, CONFIG, 1, &Data, 1, 1000);
@@ -158,6 +158,35 @@ void BMP280_Read_Measures(float *t, float *p) {
 		P = P + (var1 + var2 + ((float) BMP280_dig_P7)) / 16;
 		*p = P / 100;	//retorna P em hPa (retorno em float)
 	}
+}
+
+void bmp280_altitude_sTemp(){
+
+	float po = 1013.25;
+	float sumTemp, sumPress, Pmed, Tmed = 0;
+	sumTemp = 0;
+	sumPress = 0;
+
+	for (int i = 0; i < 10; i++) {
+		t = 0;							//temperatura
+		p = 0;							//pressão
+		BMP280_Read_Measures(&t, &p);
+		sumTemp += t;
+		sumPress += p;
+		HAL_Delay(10);
+	}
+
+	Tmed = sumTemp / 10.0f;
+	Pmed = sumPress / 10.0f;
+
+	//Imprimindo os valores de temperatura e pressão medidos
+	printf("Temperatura Media = %.2f °C\n", Tmed);
+	printf("Pressão Media= %.2f hPa\n", Pmed);
+
+	//Estimativa da altitude
+	float altitude = 44330.0f * (1.0 - pow((Pmed) / po, (1.0f / 5.255f))); //equação barométrica
+	printf("Altitude:		%.1f m\n\n\n\n", altitude);
+
 }
 
 void animation(void) {
@@ -226,7 +255,7 @@ void read_accel(void) {
 	uint8_t check;
 	// check device ID WHO_AM_I
 	HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x75, 1, &check, 1, 1000);
-	if (check == 0x70) {
+	if (check == 0x68) {
 		uint8_t Rec_Data[6];
 		// Read 6 BYTES of data starting from ACCEL_XOUT_H (0x3B) register
 		HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, 0x3B, 1, Rec_Data, 6, 1000);

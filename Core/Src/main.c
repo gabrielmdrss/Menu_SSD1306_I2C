@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "DEFINES_FUNCTIONS.h"
+#include <math.h>
 
 /* USER CODE END Includes */
 
@@ -101,6 +102,7 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	ssd1306_Init();
 	MPU6050_Init();
+	BMP280_Init();
 
 	/* USER CODE END 2 */
 
@@ -108,69 +110,66 @@ int main(void) {
 	/* USER CODE BEGIN WHILE */
 	while (1) {
 
-		if (current_screen == 0) {
+//		if (current_screen == 0) {
+//
+//			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
+//				current_screen = !current_screen;
+//				HAL_Delay(200);
+//			}
+//
+//			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON)) {
+//				cursor--;
+//				if (cursor == -1)
+//					cursor = 3;
+//				item_selected -= 1;
+//				if (item_selected < 0)
+//					item_selected = NUM_ITEMS - 1;
+//				HAL_Delay(100);
+//			}
+//
+//			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON)) {
+//				cursor++;
+//				if (cursor == 4)
+//					cursor = 0;
+//				item_selected += 1; // select next item
+//				if (item_selected >= NUM_ITEMS)
+//					item_selected = 0;
+//				HAL_Delay(100);
+//			}
+//			menu();
+//		}
+//
+//		if (current_screen) {
+//
+//			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
+//				current_screen = !current_screen;
+//				HAL_Delay(200);
+//			}
+//
+//			ssd1306_Fill(0);
+//
+//			if (item_selected == 0) {
+//				read_accel();
+//			}
+//
+//			else if (item_selected == 1) {
+//				read_gyro();
+//
+//			} else if (item_selected == 2)
+//				animation();
+//		}
+//
+//		item_sel_previous = item_selected - 1;
+//		if (item_sel_previous < 0) {
+//			item_sel_previous = NUM_ITEMS - 1;
+//		} // previous item would be below first = make it the last
+//		item_sel_next = item_selected + 1;
+//		if (item_sel_next >= NUM_ITEMS) {
+//			item_sel_next = 0;
+//		} // next item would be after last = make it the first
+//		ssd1306_UpdateScreen();
 
-			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
-				current_screen = !current_screen;
-				HAL_Delay(200);
-			}
-
-			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON)) {
-				cursor--;
-				if (cursor == -1)
-					cursor = 3;
-				item_selected -= 1;
-				if (item_selected < 0)
-					item_selected = NUM_ITEMS - 1;
-				HAL_Delay(100);
-			}
-
-			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON)) {
-				cursor++;
-				if (cursor == 4)
-					cursor = 0;
-				item_selected += 1; // select next item
-				if (item_selected >= NUM_ITEMS)
-					item_selected = 0;
-				HAL_Delay(100);
-			}
-			menu();
-		}
-
-		if (current_screen) {
-
-			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
-				current_screen = !current_screen;
-				HAL_Delay(200);
-			}
-
-			ssd1306_Fill(0);
-
-			if (item_selected == 0) {
-				read_accel();
-			}
-
-			else if (item_selected == 1) {
-				read_gyro();
-
-			} else if (item_selected == 2)
-				animation();
-		}
-
-		item_sel_previous = item_selected - 1;
-		if (item_sel_previous < 0) {
-			item_sel_previous = NUM_ITEMS - 1;
-		} // previous item would be below first = make it the last
-		item_sel_next = item_selected + 1;
-		if (item_sel_next >= NUM_ITEMS) {
-			item_sel_next = 0;
-		} // next item would be after last = make it the first
-		ssd1306_UpdateScreen();
-
-//		BMP280_Read_Measures(&t, &p);
-//		printf("Temperature: %.1f\n", t);
-//		printf("Pressure: %.1f\n\n", p);
-//		HAL_Delay(200);
+		bmp280_altitude_sTemp();
 
 		/* USER CODE END WHILE */
 
