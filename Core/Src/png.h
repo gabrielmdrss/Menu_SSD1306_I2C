@@ -10,6 +10,9 @@ int item_sel_previous; // previous item - used in the menu screen to draw the it
 int item_sel_next; // next item - used in the menu screen to draw next item after the selected one
 int current_screen = 0;
 int cursor = 0;
+int button_up_clicked = 0; // only perform action when button is clicked, and wait until another press
+int button_select_clicked = 0; // same as above
+int button_down_clicked = 0; // same as above
 
 
 const unsigned char bitmap_icon_dashboard [] = {
@@ -71,10 +74,10 @@ const unsigned char bitmap_item_sel_outline [] = {
 };
 
 char menu_items [NUM_ITEMS] [MAX_ITEM_LENGTH] = {  // array with item names
-  {"Accelerometer"},
+  {"Barometer"},
   {"Gyroscope"},
-  {"Animation"},
-  {"Calibration"}
+  {"Calibration"},
+  {"Kalman Angles"}
  };
 
 const unsigned char horse1 [] = {

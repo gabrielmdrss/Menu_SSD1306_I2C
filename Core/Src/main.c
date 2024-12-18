@@ -49,6 +49,8 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
+TIM_HandleTypeDef htim3;
+
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
@@ -60,6 +62,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -99,10 +102,12 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_I2C1_Init();
 	MX_USART1_UART_Init();
+	MX_TIM3_Init();
 	/* USER CODE BEGIN 2 */
 	ssd1306_Init();
 	MPU6050_Init();
 	BMP280_Init();
+	HAL_TIM_Base_Start_IT(&htim3);
 	current_screen = 0;
 
 	/* USER CODE END 2 */
@@ -111,66 +116,80 @@ int main(void) {
 	/* USER CODE BEGIN WHILE */
 	while (1) {
 
-//		if (current_screen == 0) {
-//
-//			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
-//				current_screen = !current_screen;
-//				HAL_Delay(200);
-//			}
-//
-//			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON)) {
-//				cursor--;
-//				if (cursor == -1)
-//					cursor = 3;
-//				item_selected -= 1;
-//				if (item_selected < 0)
-//					item_selected = NUM_ITEMS - 1;
-//				HAL_Delay(100);
-//			}
-//
-//			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON)) {
-//				cursor++;
-//				if (cursor == 4)
-//					cursor = 0;
-//				item_selected += 1; // select next item
-//				if (item_selected >= NUM_ITEMS)
-//					item_selected = 0;
-//				HAL_Delay(100);
-//			}
-//			menu();
-//		}
-//
-//		if (current_screen) {
-//
-//			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
-//				current_screen = !current_screen;
-//				HAL_Delay(200);
-//			}
-//
-//			ssd1306_Fill(0);
-//
-//			if (item_selected == 0) {
-//				read_accel();
-//			}
-//
-//			else if (item_selected == 1) {
-//				read_gyro();
-//
-//			} else if (item_selected == 2)
-//				animation();
-//		}
-//
-//		item_sel_previous = item_selected - 1;
-//		if (item_sel_previous < 0) {
-//			item_sel_previous = NUM_ITEMS - 1;
-//		} // previous item would be below first = make it the last
-//		item_sel_next = item_selected + 1;
-//		if (item_sel_next >= NUM_ITEMS) {
-//			item_sel_next = 0;
-//		} // next item would be after last = make it the first
-//		ssd1306_UpdateScreen();
+		if (Data_Ready) {
+			MPU6050_Read_Measures();
+			Data_Ready = 0;
+		}
 
-		bmp280_altitude_sTemp();
+		if (current_screen == 0) {
+
+			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
+				current_screen = !current_screen;
+				HAL_Delay(200);
+			}
+
+			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON) == GPIO_PIN_SET
+					&& button_up_clicked == 0) {
+				button_up_clicked = 1; // Marcar como pressionado
+				cursor--;
+				if (cursor == -1)
+					cursor = 3;
+				item_selected--;
+				if (item_selected < 0)
+					item_selected = NUM_ITEMS - 1;
+			}
+			// Liberar o botão UP
+			if (HAL_GPIO_ReadPin(GPIOE, UP_BUTTON) == GPIO_PIN_RESET) {
+				button_up_clicked = 0;
+			}
+
+			// Verificar estado do botão DOWN
+			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON) == GPIO_PIN_SET
+					&& button_down_clicked == 0) {
+				button_down_clicked = 1; // Marcar como pressionado
+				cursor++;
+				if (cursor == 4)
+					cursor = 0;
+				item_selected++;
+				if (item_selected >= NUM_ITEMS)
+					item_selected = 0;
+			}
+			// Liberar o botão DOWN
+			if (HAL_GPIO_ReadPin(GPIOE, DOWN_BUTTON) == GPIO_PIN_RESET) {
+				button_down_clicked = 0;
+			}
+
+			menu();
+		}
+
+		if (current_screen) {
+
+			if (HAL_GPIO_ReadPin(GPIOE, ENTER_BUTTON)) {
+				current_screen = !current_screen;
+				HAL_Delay(200);
+			}
+
+			ssd1306_Fill(0);
+
+			if (item_selected == 0)
+				print_BMP280();
+			else if (item_selected == 1)
+				print_gyro();
+			else if (item_selected == 2)
+				calibration();
+			else if (item_selected == 3)
+				print_kalman();
+		}
+
+		item_sel_previous = item_selected - 1;
+		if (item_sel_previous < 0) {
+			item_sel_previous = NUM_ITEMS - 1;
+		} // previous item would be below first = make it the last
+		item_sel_next = item_selected + 1;
+		if (item_sel_next >= NUM_ITEMS) {
+			item_sel_next = 0;
+		} // next item would be after last = make it the first
+		ssd1306_UpdateScreen();
 
 		/* USER CODE END WHILE */
 
@@ -199,7 +218,12 @@ void SystemClock_Config(void) {
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
 	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
 	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	RCC_OscInitStruct.PLL.PLLM = 8;
+	RCC_OscInitStruct.PLL.PLLN = 80;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = 4;
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
 		Error_Handler();
 	}
@@ -208,12 +232,12 @@ void SystemClock_Config(void) {
 	 */
 	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
 			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
 		Error_Handler();
 	}
 }
@@ -247,6 +271,48 @@ static void MX_I2C1_Init(void) {
 	/* USER CODE BEGIN I2C1_Init 2 */
 
 	/* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void) {
+
+	/* USER CODE BEGIN TIM3_Init 0 */
+
+	/* USER CODE END TIM3_Init 0 */
+
+	TIM_ClockConfigTypeDef sClockSourceConfig = { 0 };
+	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+	/* USER CODE BEGIN TIM3_Init 1 */
+
+	/* USER CODE END TIM3_Init 1 */
+	htim3.Instance = TIM3;
+	htim3.Init.Prescaler = 79;
+	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim3.Init.Period = 10000;
+	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	if (HAL_TIM_Base_Init(&htim3) != HAL_OK) {
+		Error_Handler();
+	}
+	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK) {
+		Error_Handler();
+	}
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig)
+			!= HAL_OK) {
+		Error_Handler();
+	}
+	/* USER CODE BEGIN TIM3_Init 2 */
+
+	/* USER CODE END TIM3_Init 2 */
 
 }
 
@@ -307,6 +373,10 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	Data_Ready = 1;
+}
 
 int __io_putchar(int ch) {
 	USART1->DR = (ch & (uint16_t) 0x01FF);
