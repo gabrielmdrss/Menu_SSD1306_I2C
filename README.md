@@ -24,6 +24,7 @@ This repository contains the implementation of a simple menu interface using an 
 - STM32 microcontroller.  
 - SSD1306 OLED display (I2C interface).  
 - MPU6500 accelerometer (I2C interface).  
+- BMP280 barometer (I2C interface)
 - Three push-buttons for navigation.  
 
 ## Software Setup  
