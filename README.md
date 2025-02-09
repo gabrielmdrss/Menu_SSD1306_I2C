@@ -49,4 +49,4 @@ This repository contains the implementation of a simple menu interface using an 
 
 4. **Operation:**  
    - Use the CHANGE button to navigate the menu.  
-   - Use the ENTER button to select an option.  
+   - Use the ENTER button to select an option.
